@@ -1,5 +1,5 @@
 #+--------------------------------------------------------------------+
-#| asset_bundler.coffee
+#| tag_cloud.coffee
 #+--------------------------------------------------------------------+
 #| Copyright DarkOverlordOfData (c) 2013
 #+--------------------------------------------------------------------+
@@ -11,128 +11,75 @@
 #|
 #+--------------------------------------------------------------------+
 #
-# asset bundler hugin-plugin
+# tag cloud hugin-plugin
 #
 fs = require('fs')
 path = require('path')
-yaml = require('yaml-js')
-crypto = require('crypto')
-jsmin = require('jsmin').jsmin
-cssmin = require('cssmin')
-
-_bundler  = /\"([^\"]*)\"/
-_js       = ''
-_css      = ''
-_cdn      = ''
-_url      = ''
-_dev      = false
-_src      = ''
-_dst      = ''
-_min_js   = false
-_min_css  = false
 
 
 module.exports =
 
-  tag: 'bundle'   # {% bundle %}
-  ends: true      # {% endbundle %}
+  name: 'tag_cloud'   # {{ site | tag_cloud }}
+
+  generate: ($site, $build) ->
+
+    $tag_page = $site.tag_page_layout
+    $tag_dir = $site.tag_page_dir
+    $tags = {}
+    $total = 0
+
+    for $post in $site.posts
+      if $post.tag isnt ''
+        $tag = $post.tag
+        $tags[$tag]=[] unless $tags[$tag]?
+        $tags[$tag].push $post
+
+        $total++
+      if $post.tags isnt ''
+        for $tag in $post.tags.split(' ')
+          $tags[$tag]=[] unless $tags[$tag]?
+          $tags[$tag].push $post
+
+    for $tag, $posts of $tags
+      $total += $posts.length
+
+    # find the biggest tag
+    $max = 0
+    $min = 0
+    for $tag, $posts of $tags
+      $max = Math.max($max, $posts.length)
+      $min = Math.min($min, $posts.length)
+
+    #
+    # Generate the html for the site
+    #
+    $html = ''
+    $mult = (5-1)/($max-$min)
+    for $tag, $posts of $tags
+      $size = Math.floor(1 + (($max-($max-($posts.length-$min)))*$mult))
+      $html += "<a href=\"/#{$tag_dir}/#{$tag}\" class=\"set-#{$size}\">#{$tag}</a> "
+
+    $site.tag_cloud = $html
+
+    #
+    # Generate a landing page for each tag
+    #
+
+
+    fs.mkdirSync "#{$site.destination}/#{$tag_dir}" unless fs.existsSync("#{$site.destination}/#{$tag_dir}")
+    $tmp = "#{$site.source}/_layouts/#{$tag_page}.html"
+    $dir = "#{$site.destination}/#{$tag_dir}"
+
+    for $tag, $posts of $tags
+      $out = "#{$dir}/#{$tag}"
+      fs.mkdirSync $out unless fs.existsSync($out)
+      fs.writeFileSync "#{$out}/index.html", $build.render($tmp, posts: $posts)
+
+
+
 
   #
-  # Connect to the site
-  # cache some configuration values
+  # Show the cloud genetated for the site
   #
-  connect: ($site) ->
-
-    _js       = $site.asset_bundler.markup_templates.js
-    _css      = $site.asset_bundler.markup_templates.css
-    _cdn      = $site.asset_bundler.server_url
-    _url      = $site.asset_bundler.base_path
-    _dev      = $site.asset_bundler.dev
-    _src      = $site.source
-    _dst      = $site.destination
-    _min_js   = $site.asset_bundler.compress.js
-    _min_css  = $site.asset_bundler.compress.css
-
-  #
-  # build the tag content
-  #
-  compile: (compiler, args, content, parents, options, blockName) ->
-
-    $assets = compiler(content, parents, options, blockName)
-
-    if ($match = $assets.match(_bundler))?
-
-      $bundle = yaml.load($match[1].replace(/\\n/g, "\n"))
-      if _dev # Just create tags for each asset file
-
-        $s = ''
-        for $asset in $bundle
-          if /.js$/.test $asset
-            $url = $asset.replace(/^\/_assets\//, _url)
-            _copy_asset $asset, $url
-            $s+= _js.replace("{{url}}", $url)
-
-          else if /.css$/.test $asset
-            $url = $asset.replace(/^\/_assets\//, _url)
-            _copy_asset $asset, $url
-            $s+=_css.replace("{{url}}", $url)
-
-        $assets = $assets.replace(_bundler, "\"#{$s.replace(/\n/g, "\\n")}\"")
-
-      else
-
-        $js = ''
-        $css = ''
-        for $asset in $bundle
-          $code = String(fs.readFileSync(_src+$asset))
-          if /.js$/.test $asset
-            $js +=  if _min_js then jsmin($code, 3) else $code
-
-          else if /.css$/.test $asset
-            $css +=  if _min_css then cssmin($code) else $code
-
-        $s = ''
-        if $js.length
-          $url_js = "assets/#{md5($js)}.js"
-          fs.writeFileSync "#{_dst}/#{$url_js}", $js
-          $s+= _js.replace("{{url}}", "/#{$url_js}")
-
-        if $css.length
-          $url_css = "assets/#{md5($css)}.css"
-          fs.writeFileSync "#{_dst}/#{$url_css}", $css
-          $s+= _css.replace("{{url}}", "/#{$url_css}")
-
-        $assets = $assets.replace(_bundler, "\"#{$s.replace(/\n/g, "\\n")}\"")
-
-    return $assets
-
-  #
-  # build the tag
-  #
-  parse: (str, line, parser, types, stack, opts) ->
-    return true;
-
-
-#
-# Copy an asset
-#
-# @param  [String]  from  source asset
-# @param  [String]  to    destination asset
-# @return none
-#
-_copy_asset = ($from, $to) ->
-  $src = path.resolve("#{_src}/#{$from}")
-  $dst = path.resolve("#{_dst}/#{$to}")
-
-  fs.writeFileSync $dst, String(fs.readFileSync($src))
-
-
-#
-# Compute an MD5 hash
-#
-# @param  [String]  str   string to hash
-# @param  [String]  encoding  output type = bin|hex|base64
-# @return none
-#
-md5 = ($str, $encoding='hex') ->
-  crypto.createHash('md5').update($str).digest($encoding)
+  filter: ($site) ->
+    $site.tag_cloud
