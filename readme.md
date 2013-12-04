@@ -1,8 +1,8 @@
-# Hugin Tag Cloud Plugin
+# Huginn Tag Cloud Plugin
 
 pronounced "HOO-gin"
 
-"On, Hekyll! On, Jekyll! On Hugin and Munin!"
+"On, Hekyll! On, Jekyll! On Huginn and Muninn!"
 
 Static Page generator
 
@@ -11,7 +11,7 @@ Static Page generator
 ### Install
 
 ```bash
-$ npm install hugin-tag-cloud --save
+$ npm install huginn-tag-cloud --save
 ```
 
 Add to confg.yml
@@ -19,8 +19,8 @@ Add to confg.yml
 
 ```yml
 plugins:
-  - hugin-asset-bundler
-  - hugin-tag-cloud
+  - huginn-asset-bundler
+  - huginn-tag-cloud
 ```
 
 

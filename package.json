@@ -1,9 +1,9 @@
 {
-  "name": "hugin-tag-cloud",
+  "name": "huginn-tag-cloud",
   "version": "0.0.1",
-  "description": "Hugin plugin tag cloud",
+  "description": "Huginn plugin tag cloud",
   "keywords": [
-    "hugin",
+    "huginn",
     "static blog",
     "coffee-script"
   ],
@@ -24,7 +24,7 @@
   "bin": {
   },
   "devDependencies": {},
-  "repository": "git://github.com/darkoverlordofdata/hugin-tag-cloud",
+  "repository": "git://github.com/darkoverlordofdata/huginn-tag-cloud",
   "main": "index",
   "engines": {
     "node": ">=0.10.x",
