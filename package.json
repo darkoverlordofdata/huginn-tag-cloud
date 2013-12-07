@@ -1,6 +1,6 @@
 {
   "name": "huginn-tag-cloud",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Huginn plugin tag cloud",
   "keywords": [
     "huginn",
