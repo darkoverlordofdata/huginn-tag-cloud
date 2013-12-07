@@ -16,7 +16,7 @@
 fs = require('fs')
 path = require('path')
 
-module.exports = (Liquid, site) ->
+module.exports = (Liquid, site, build) ->
 
 
   #
@@ -72,9 +72,9 @@ module.exports = (Liquid, site) ->
   for $tag, $posts of $tags
     $out = "#{$dir}/#{$tag}"
     fs.mkdirSync $out unless fs.existsSync($out)
-    fs.writeFileSync "#{$out}/index.html", $build.render($tmp, posts: $posts)
+    fs.writeFileSync "#{$out}/index.html", build.render($tmp, posts: $posts)
 
 
-  Liquid.Template.register_filter
-    tags: ($site) ->
-      $site.tag_cloud
+  Liquid.Template.registerFilter
+    tags: (site) ->
+      site.tag_cloud
