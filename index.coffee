@@ -60,10 +60,13 @@ module.exports = (Liquid, site, build) ->
 
   site.tag_cloud = $html
 
+  Liquid.Template.registerFilter
+    tag_cloud: (site) ->
+      site.tag_cloud
+
   #
   # Generate a landing page for each tag
   #
-
 
   fs.mkdirSync "#{site.destination}/#{$tag_dir}" unless fs.existsSync("#{site.destination}/#{$tag_dir}")
   $tmp = "#{site.source}/_layouts/#{$tag_page}.html"
@@ -75,6 +78,3 @@ module.exports = (Liquid, site, build) ->
     fs.writeFileSync "#{$out}/index.html", build.render($tmp, posts: $posts)
 
 
-  Liquid.Template.registerFilter
-    tags: (site) ->
-      site.tag_cloud
