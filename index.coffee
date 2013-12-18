@@ -15,8 +15,9 @@
 #
 fs = require('fs')
 path = require('path')
+Liquid = require('huginn-liquid')
 
-module.exports = (Liquid, site, build) ->
+module.exports = (site) ->
 
 
   #
@@ -75,6 +76,6 @@ module.exports = (Liquid, site, build) ->
   for $tag, $posts of $tags
     $out = "#{$dir}/#{$tag}"
     fs.mkdirSync $out unless fs.existsSync($out)
-    fs.writeFileSync "#{$out}/index.html", build.render($tmp, posts: $posts)
+    fs.writeFileSync "#{$out}/index.html", site.render($tmp, posts: $posts)
 
 
