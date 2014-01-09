@@ -23,6 +23,11 @@ plugins:
   - huginn-tag-cloud
 ```
 
+## Versioning
+
+    0.0.4 - huginn 0.1.0
+    0.0.5 - huginn 0.1.1
+
 
 ## License
 

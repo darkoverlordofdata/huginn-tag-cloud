@@ -61,8 +61,8 @@ module.exports = (site) ->
 
   site.tag_cloud = $html
 
-  Liquid.Template.registerFilter
-    tag_cloud: (site) ->
+  Liquid.Template.registerFilter class TagCloudFilter
+    @tag_cloud = (site) ->
       site.tag_cloud
 
   #
